@@ -121,11 +121,9 @@ def organise_directory(source_path, target_path):
     return len(audio_files), len(processed_albums), len(processed_artists)
 
 if __name__ == '__main__':
-    # target_folder = input('Enter the path to the folder to be organised:\n')
-    target_folder = 'C:\\Users\\milan\\Downloads\\Unorganised Music\\Old Files'
+    target_folder = input('Enter the path to the folder to be organised:\n')
     target_folder = target_folder.strip('"').strip("'")
-    # target_path = input('Enter the path to the folder to send the music:\n')
-    target_path = 'C:\\Users\\milan\\Downloads\\Unorganised Music\\SyncedMusic'
+    target_path = input('Enter the path to the folder to send the music:\n')
 
     # Remove accidental quotations from input.
     target_path = target_path.strip('"').strip("'")
