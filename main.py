@@ -142,4 +142,4 @@ if __name__ == '__main__':
     print(f'\nSorted {INFO}{total_artists} {RESET}Artists')
     print(f'\nSorted {INFO}{total_albums} {RESET}Albums')
     print(f'\nSorted {INFO}{total_songs} {RESET}Songs')
-    print(f'\nTotal execution time: {INFO}{minutes} minutes and {seconds:.2f} seconds')
+    print(f'\nTotal execution time: {INFO}{minutes} minutes and {seconds:.2f} seconds{RESET}')
