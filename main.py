@@ -1,9 +1,6 @@
 from pathlib import Path
-import time
-import mutagen
-import shutil
-
-from helpers import formatText, sanitize_name, get_primary_artist
+import time, shutil
+from helpers import FormatText, get_song_metadata
 
 
 def organise_directory(source_path, target_path):
@@ -27,40 +24,21 @@ def organise_directory(source_path, target_path):
     # Set to store the PATH of the artists we've found.
     processed_artists = set()
 
-    print(f'Found {formatText.info(len(audio_files))} audio files. Reading Metadata...\n')
+    print(f'Found {FormatText.info(len(audio_files))} audio files. Reading Metadata...\n')
     print('-' * 40)
 
     for index, file_path in enumerate(audio_files, 1):
         try:
-            try:
-                audio = mutagen.File(file_path, easy=True)
-            except TypeError:
-                audio = mutagen.File(file_path)
-                
+            metadata = get_song_metadata(file_path)
 
-            if audio is None:
-                print(formatText.info(f'[{file_path.name}] -> No readable tags found!'))
+            if metadata is None:
                 continue
 
-            raw_artist = audio.get('artist', ['Unknown Artist'])[0]
-            raw_album = audio.get('album', ['Unkown Album'])[0]
-            album_artist_list = audio.get('albumartist') or audio.get('artist', ['Unknown Artist'])
-            raw_album_artist = album_artist_list[0]
-            raw_title = audio.get('title', [file_path.stem])[0]
-
-            primary_artist = get_primary_artist(raw_artist)
-            primary_album_artist = get_primary_artist(raw_album_artist)
-
-            safe_artist = sanitize_name(primary_artist)
-            safe_album = sanitize_name(raw_album)
-            safe_album_artist = sanitize_name(primary_album_artist)
-            safe_title = sanitize_name(raw_title)
-
-            artist_folder = target_dir / safe_album_artist
-            new_folder = target_dir / safe_album_artist / safe_album
+            artist_folder = target_dir / metadata.album_artist
+            new_folder = target_dir / metadata.album_artist / metadata.album
             new_folder.mkdir(parents=True, exist_ok=True)
 
-            new_file_path = new_folder / f'{safe_title}{file_path.suffix.lower()}'
+            new_file_path = new_folder / f'{metadata.title}{file_path.suffix.lower()}'
 
             if artist_folder not in processed_artists:
                 original_folder = file_path.parent
@@ -78,7 +56,7 @@ def organise_directory(source_path, target_path):
                     artist_img_target = artist_folder / f'artist{artist_img_source.suffix.lower()}'
                     if not artist_img_target.exists():
                         shutil.copy2(artist_img_source, artist_img_target)
-                        print(formatText.success(f'COPIED ARTIST PICTURE: {safe_album_artist}'))
+                        print(FormatText.success(f'COPIED ARTIST PICTURE: {metadata.album_artist}'))
 
                 processed_artists.add(artist_folder)
 
@@ -93,26 +71,26 @@ def organise_directory(source_path, target_path):
 
                     if not cover_target.exists():
                         shutil.copy2(cover_source, cover_target)
-                        print(formatText.success(f'COPIED ALBUM ART: {safe_album}'))
+                        print(FormatText.success(f'COPIED ALBUM ART: {metadata.album}'))
 
                 processed_albums.add(new_folder)
 
             if not new_file_path.exists():
                 shutil.copy2(file_path, new_file_path)
-                print(formatText.success(f'[{index}/{len(audio_files)}] COPIED: {safe_artist} -> {safe_album} -> {safe_title}'))
+                print(FormatText.success(f'[{index}/{len(audio_files)}] COPIED: {metadata.artist} -> {metadata.album} -> {metadata.title}'))
             else:
-                print(formatText.info(f'[{index}/{len(audio_files)}] SKIPPED (Already exists): {safe_title}'))
+                print(FormatText.info(f'[{index}/{len(audio_files)}] SKIPPED (Already exists): {metadata.title}'))
 
         except Exception as e:
-            print(formatText.error(f'[{file_path.name}] -> CRASHED: {str(e)}'))
+            print(FormatText.error(f'[{file_path.name}] -> CRASHED: {str(e)}'))
 
     # Return the data we want to display :)
     return len(audio_files), len(processed_albums), len(processed_artists)
 
 if __name__ == '__main__':
-    target_folder = input(formatText.alert('\nEnter the path to the folder to be organised:\n'))
+    target_folder = input(FormatText.alert('\nEnter the path to the folder to be organised:\n'))
     target_folder = target_folder.strip('"').strip("'")
-    target_path = input(formatText.alert('\nEnter the path to the folder to send the music:\n'))
+    target_path = input(FormatText.alert('\nEnter the path to the folder to send the music:\n'))
 
     # Remove accidental quotations from input.
     target_path = target_path.strip('"').strip("'")
@@ -127,8 +105,8 @@ if __name__ == '__main__':
     minutes = int(elapsed_time // 60)
     seconds = elapsed_time % 60
 
-    print(formatText.alert('\nMusic Organised'))
-    print(f'\nSorted {formatText.info(total_artists)} Artists')
-    print(f'\nSorted {formatText.info(total_albums)} Albums')
-    print(f'\nSorted {formatText.info(total_songs)} Songs')
-    print(f'\nTotal execution time: {formatText.info(f'{minutes} minutes and {seconds:.2f} seconds')}')
+    print(FormatText.alert('\nMusic Organised'))
+    print(f'\nSorted {FormatText.info(total_artists)} Artists')
+    print(f'\nSorted {FormatText.info(total_albums)} Albums')
+    print(f'\nSorted {FormatText.info(total_songs)} Songs')
+    print(f'\nTotal execution time: {FormatText.info(f'{minutes} minutes and {seconds:.2f} seconds')}')

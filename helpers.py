@@ -1,9 +1,43 @@
-import re
+import re, mutagen
+from dataclasses import dataclass
 
-def sanitize_name(name):
+
+@dataclass
+class SongMetadata:
+    """data class to track music metadata"""
+    title: str
+    artist: str
+    album: str
+    album_artist: str
+
+def get_song_metadata(file_path):
+    """Extracts tags from an audio file""" # Potentially reword this, doesn't sound right.
+    try:
+        audio = mutagen.File(file_path, easy=True)
+    except TypeError:
+        audio = mutagen.File(file_path)
+
+    if audio is None:
+        print(FormatText.info(f'[{file_path.name}]: No readable tags found!'))
+        return None
+
+    raw_title = audio.get('title', [file_path.stem])[0]
+    raw_artist = get_primary_artist(audio.get('artist', ['Unknown Artist'])[0])
+    raw_album = audio.get('album', ['Unkown Album'])[0]
+    raw_album_artist = get_primary_artist((audio.get('albumartist') or audio.get('artist', ['Unknown Artist']))[0])
+
+    return SongMetadata(
+        title = sanitise_data(raw_title),
+        artist = sanitise_data(raw_artist),
+        album = sanitise_data(raw_album),
+        album_artist = sanitise_data(raw_album_artist)
+    )
+
+
+def sanitise_data(name):
     """Removes illegal characters that Windows forbids in folder and file names."""
-    sanitized = re.sub(r'[<>:"/\\|?*]', '', str(name))
-    return sanitized.strip(' .')
+    sanitised = re.sub(r'[<>:"/\\|?*]', '', str(name))
+    return sanitised.strip(' .')
 
 def get_primary_artist(artist_string):
     """Splits concatenated artist strings and returns on the primary artist"""
@@ -12,11 +46,8 @@ def get_primary_artist(artist_string):
 
     return parts[0].strip()
 
-
-
-
 # Format
-class formatText:
+class FormatText:
     """Allows text to be formatted with different colours"""
 
     ERROR = '\033[31m' # RED
