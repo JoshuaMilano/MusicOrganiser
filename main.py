@@ -89,16 +89,16 @@ def organise_directory(source_path, target_path):
     return len(audio_files), len(processed_albums), len(processed_artists)
 
 if __name__ == '__main__':
-    target_folder = input(FormatText.alert('\nEnter the path to the folder to be organised:\n'))
-    target_folder = target_folder.strip('"').strip("'")
-    target_path = input(FormatText.alert('\nEnter the path to the folder to send the music:\n'))
+    original_folder = input(FormatText.alert('\nEnter the path to the folder to be organised:\n'))
+    destination_folder = input(FormatText.alert('\nEnter the path to the folder to send the music:\n'))
 
     # Remove accidental quotations from input.
-    target_path = target_path.strip('"').strip("'")
+    original_folder = original_folder.strip('"').strip("'")
+    destination_folder = destination_folder.strip('"').strip("'")
 
     start_time = time.perf_counter()
 
-    total_songs, total_albums, total_artists = organise_directory(target_folder, target_path)
+    total_songs, total_albums, total_artists = organise_directory(original_folder, destination_folder)
 
     end_time = time.perf_counter()
 
