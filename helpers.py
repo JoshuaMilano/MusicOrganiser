@@ -11,7 +11,7 @@ class SongMetadata:
     album_artist: str
 
 def get_song_metadata(file_path):
-    """Extracts tags from an audio file""" # Potentially reword this, doesn't sound right.
+    """Extracts tags from an audio file"""
     try:
         audio = mutagen.File(file_path, easy=True)
     except TypeError:
