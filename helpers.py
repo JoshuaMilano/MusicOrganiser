@@ -1,6 +1,6 @@
-import re, mutagen
+import re, mutagen, shutil
 from dataclasses import dataclass
-
+from pathlib import Path
 
 @dataclass
 class SongMetadata:
@@ -23,7 +23,7 @@ def get_song_metadata(file_path):
 
     raw_title = audio.get('title', [file_path.stem])[0]
     raw_artist = get_primary_artist(audio.get('artist', ['Unknown Artist'])[0])
-    raw_album = audio.get('album', ['Unkown Album'])[0]
+    raw_album = audio.get('album', ['Unknown Album'])[0]
     raw_album_artist = get_primary_artist((audio.get('albumartist') or audio.get('artist', ['Unknown Artist']))[0])
 
     return SongMetadata(
@@ -40,15 +40,39 @@ def sanitise_data(name):
     return sanitised.strip(' .')
 
 def get_primary_artist(artist_string):
-    """Splits concatenated artist strings and returns on the primary artist"""
+    """Splits concatenated artist strings and returns on the primary artist."""
     artist_string = str(artist_string)
     parts = re.split(r'(?i)\s*(?:;|\bfeat\.?\b|\bft\.?\b)', str(artist_string))
 
     return parts[0].strip()
 
+def copy_album_img(
+        original_album_folder: Path,
+        target_album_folder: Path,
+        allowed_extensions: set
+    ):
+    """Copies album art from the original location to the new location if that album art image extension is allowed"""
+
+    images_in_folder = [img for img in original_album_folder.iterdir() if img.suffix.lower() in allowed_extensions]
+
+    if images_in_folder:
+        cover_source = images_in_folder[0]
+        cover_target = target_album_folder / f'cover{cover_source.suffix.lower()}'
+
+        if not cover_target.exists():
+            shutil.copy2(cover_source, cover_target)
+            return 'COPIED' # Copied album art
+        
+        return 'EXISTS' # album_art already exists
+
+    return 'MISSING' # No images in folder
+
+def get_artist_img():
+    pass
+
 # Format
 class FormatText:
-    """Allows text to be formatted with different colours"""
+    """Allows text to be formatted with different colours."""
 
     ERROR = '\033[31m' # RED
     SUCCESS = '\033[32m' # GREEN
