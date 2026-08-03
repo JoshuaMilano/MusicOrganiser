@@ -46,11 +46,7 @@ def get_primary_artist(artist_string):
 
     return parts[0].strip()
 
-def copy_album_img(
-        original_album_folder: Path,
-        target_album_folder: Path,
-        allowed_extensions: set
-    ):
+def copy_album_img(original_album_folder: Path, target_album_folder: Path, *, allowed_extensions: set):
     """Copies album art from the original location to the new location if that album art image extension is allowed"""
 
     images_in_folder = [img for img in original_album_folder.iterdir() if img.suffix.lower() in allowed_extensions]
@@ -67,8 +63,25 @@ def copy_album_img(
 
     return 'MISSING' # No images in folder
 
-def get_artist_img():
-    pass
+def copy_artist_img(original_album_folder: Path, target_artist_folder: Path, *, allowed_extensions: set):
+    for ext in allowed_extensions:
+        if (original_album_folder / f'artist{ext}').exists():
+            artist_art_source = original_album_folder / f'artist{ext}'
+            break
+        elif (original_album_folder.parent / f'artist{ext}').exists():
+            artist_art_source = original_album_folder.parent / f'artist{ext}'
+            break
+
+    if artist_art_source:
+        artist_art_target = target_artist_folder / f'artist{artist_art_source.suffix.lower()}'
+        if not artist_art_target.exists():
+            shutil.copy2(artist_art_source, artist_art_target)
+            return 'COPIED'
+
+        return 'EXISTS'
+
+    return 'MISSING'
+
 
 # Format
 class FormatText:

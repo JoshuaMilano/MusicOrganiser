@@ -1,6 +1,6 @@
+import shutil
 from pathlib import Path
-import time, shutil
-from helpers import FormatText, get_song_metadata, get_artist_img, copy_album_img
+from helpers import FormatText, get_song_metadata, copy_artist_img, copy_album_img
 
 def organise_directory(source_path, target_path):
     source_dir = Path(source_path)
@@ -39,13 +39,13 @@ def organise_directory(source_path, target_path):
 
             new_file_path = new_folder / f'{metadata.title}{file_path.suffix.lower()}'
 
+            # Copy Album Art
             if new_folder not in processed_albums:
-                file_parent_folder = file_path.parent
-                album_art_status = copy_album_img(file_parent_folder, new_folder, supported_image_extensions)
+                album_art_status = copy_album_img(file_path.parent, new_folder, allowed_extensions=supported_image_extensions)
 
                 match album_art_status:
                     case 'MISSING':
-                        print(FormatText.alert(f'NO ALBUM ART IN FOLDER {FormatText.info(file_parent_folder)}'))
+                        print(FormatText.alert(f'NO ALBUM ART IN FOLDER {FormatText.info(file_path.parent)}'))
                     case 'EXISTS':
                         print(FormatText.info(f'ALBUM ART: {metadata.album} ALREADY EXISTS'))
                     case 'COPIED':
@@ -54,25 +54,19 @@ def organise_directory(source_path, target_path):
                         print(FormatText.error('An Error occurred'))
                 processed_albums.add(new_folder)
 
-            get_artist_img()
-            
+            # Copy Artist Art
             if artist_folder not in processed_artists:
-                original_folder = file_path.parent
-                artist_img_source = None
+                artist_art_status = copy_artist_img(file_path.parent, artist_folder, allowed_extensions=supported_image_extensions)
 
-                for ext in supported_image_extensions:
-                    if (original_folder / f'artist{ext}').exists():
-                        artist_img_source = original_folder / f'artist{ext}'
-                        break
-                    elif (original_folder.parent / f'artist{ext}').exists():
-                        artist_img_source = original_folder.parent / f'artist{ext}'
-                        break
-
-                if artist_img_source:
-                    artist_img_target = artist_folder / f'artist{artist_img_source.suffix.lower()}'
-                    if not artist_img_target.exists():
-                        shutil.copy2(artist_img_source, artist_img_target)
+                match artist_art_status:
+                    case 'MISSING':
+                        print(FormatText.alert(f'NO ARTIST ART IN FOLDER {FormatText.info(artist_folder)}'))
+                    case 'EXISTS':
+                        print(FormatText.info(f'ARTIST ART FOR: {metadata.artist} ALREADY EXISTS'))
+                    case 'COPIED':
                         print(FormatText.success(f'COPIED ARTIST PICTURE: {metadata.album_artist}'))
+                    case _:
+                        print(FormatText.error('An Error occurred'))
 
                 processed_artists.add(artist_folder)
 
@@ -87,27 +81,3 @@ def organise_directory(source_path, target_path):
 
     # Return the data we want to display :)
     return len(audio_files), len(processed_albums), len(processed_artists)
-
-if __name__ == '__main__':
-    original_folder = input(FormatText.alert('\nEnter the path to the folder to be organised:\n'))
-    destination_folder = input(FormatText.alert('\nEnter the path to the folder to send the music:\n'))
-
-    # Remove accidental quotations from input.
-    original_folder = original_folder.strip('"').strip("'")
-    destination_folder = destination_folder.strip('"').strip("'")
-
-    start_time = time.perf_counter()
-
-    total_songs, total_albums, total_artists = organise_directory(original_folder, destination_folder)
-
-    end_time = time.perf_counter()
-
-    elapsed_time = end_time - start_time
-    minutes = int(elapsed_time // 60)
-    seconds = elapsed_time % 60
-
-    print(FormatText.alert('\nMusic Organised'))
-    print(f'\nSorted {FormatText.info(total_artists)} Artists')
-    print(f'\nSorted {FormatText.info(total_albums)} Albums')
-    print(f'\nSorted {FormatText.info(total_songs)} Songs')
-    print(f'\nTotal execution time: {FormatText.info(f'{minutes} minutes and {seconds:.2f} seconds')}')
