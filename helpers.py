@@ -64,6 +64,8 @@ def copy_album_img(original_album_folder: Path, target_album_folder: Path, *, al
     return 'MISSING' # No images in folder
 
 def copy_artist_img(original_album_folder: Path, target_artist_folder: Path, *, allowed_extensions: set):
+    artist_art_source = None
+
     for ext in allowed_extensions:
         if (original_album_folder / f'artist{ext}').exists():
             artist_art_source = original_album_folder / f'artist{ext}'
