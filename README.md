@@ -16,3 +16,6 @@ root_folder\
         ├─ cover.ext
         └─ audio_file.ext
 ```
+
+# How to use
+You can download and extract the latest version from the github releases.
