@@ -13,16 +13,22 @@ class MainWindow(QMainWindow):
 
         self.source_picker = FolderPicker(label_text='Original Folder', placeholder='Select the original folder')
         self.destination_picker = FolderPicker(label_text='Destination Folder', placeholder='Select the destination folder')
+        # layout.addStretch()
         layout.addWidget(self.source_picker)
+        layout.addStretch()
         layout.addWidget(self.destination_picker)
 
         self.status_label = QLabel('Ready...')
         self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addStretch()
         layout.addWidget(self.status_label)
 
         self.sort_button = QPushButton('Sort')
         self.sort_button.clicked.connect(self.run_sort)
+        layout.addStretch()
         layout.addWidget(self.sort_button)
+
+        layout.addStretch()
 
         widget = QWidget()
         widget.setLayout(layout)
@@ -56,6 +62,7 @@ class FolderPicker(QWidget):
 
         self.label = QLabel(label_text)
         widget_layout.addWidget(self.label)
+        widget_layout.setSpacing(5)
 
         folder_select_layout = QHBoxLayout()
 
@@ -70,7 +77,6 @@ class FolderPicker(QWidget):
 
         widget_layout.addLayout(folder_select_layout)
 
-        widget_layout.addStretch()
         self.setLayout(widget_layout)
 
     def open_folder_dialog(self):
