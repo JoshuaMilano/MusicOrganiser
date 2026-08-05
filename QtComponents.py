@@ -12,7 +12,7 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout()
 
         self.source_picker = FolderPicker(label_text='Original Folder', placeholder='Select the original folder')
-        self.destination_picker = FolderPicker(label_text='Original Folder', placeholder='Select the original folder')
+        self.destination_picker = FolderPicker(label_text='Destination Folder', placeholder='Select the destination folder')
         layout.addWidget(self.source_picker)
         layout.addWidget(self.destination_picker)
 
