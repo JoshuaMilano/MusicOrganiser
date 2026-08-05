@@ -2,7 +2,7 @@ import shutil
 from pathlib import Path
 from helpers import FormatText, get_song_metadata, copy_artist_img, copy_album_img
 
-def organise_directory(source_path, target_path):
+def organise_directory(source_path: str, target_path: str):
     source_dir = Path(source_path)
     target_dir = Path(target_path)
 
@@ -16,7 +16,6 @@ def organise_directory(source_path, target_path):
     # append f (file) for every f (file) in source_dir.rglob('*') if the file suffix converted to lowercase is in the supported music extensions
     # .rglob will recursively search the entire source directory.
     audio_files = [f for f in source_dir.rglob('*') if f.suffix.lower() in supported_music_extensions]
-    song_count = len(audio_files)
 
     # Set to store the PATH of albums we've found
     processed_albums = set()
